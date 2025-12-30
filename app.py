@@ -15,8 +15,11 @@ HOST = "localhost"
 PORT = "5432"
 DB = "project_db"
 
-DB_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB}"
+# In plaats van de tekst direct hier te typen, halen we het uit secrets.toml
+DB_URL = st.secrets["DB_URL"]
 engine = create_engine(DB_URL, pool_pre_ping=True)
+#DB_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB}"
+#engine = create_engine(DB_URL, pool_pre_ping=True)
 
 # Test connectie
 try:

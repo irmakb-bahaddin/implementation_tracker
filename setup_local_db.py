@@ -7,15 +7,15 @@ HOST = "localhost"
 PORT = "5432"
 DB = "project_db"
 
-DB_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB}"
-
+# --- CONFIGURATIE VOOR SUPABASE ---
+DB_URL = "postgresql://postgres:Pvjt3ukKc4QrP@db.vhvimbadsxfjhcokusjd.supabase.co:5432/postgres"
+engine = create_engine(DB_URL, pool_pre_ping=True)
 
 def setup_database():
-    """Maakt de verbinding en richt de tabellen in op je laptop."""
+    """Maakt de verbinding en richt de tabellen in op Supabase."""
     try:
-        print(f"Verbinding maken met lokale database: {DB}...")
-        engine = create_engine(DB_URL)
-
+        print(f"Verbinding maken met online database...")
+        # Regel 20 (engine = ...) is hier nu weggehaald
         with engine.connect() as connection:
             # Tabel projecten
             connection.execute(text("""
