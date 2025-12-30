@@ -9,11 +9,8 @@ import datetime   # <-- deze erbij
 from io import BytesIO
 
 # ========= DATABASE CONFIG =========
-USER = "postgres"
-PASSWORD = "welkom01"  # <<< DEZELFDE ALS IN setup_local_db.py
-HOST = "localhost"
-PORT = "5432"
-DB = "project_db"
+DB_URL = st.secrets["DB_URL"]
+engine = create_engine(DB_URL, pool_pre_ping=True)
 
 # In plaats van de tekst direct hier te typen, halen we het uit secrets.toml
 DB_URL = st.secrets["DB_URL"]
