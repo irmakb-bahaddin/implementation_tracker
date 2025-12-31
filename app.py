@@ -286,8 +286,10 @@ elif menu == "➕ Nieuw Project":
                             {"n": naam, "f": fase, "s": status}
                         )
                     conn.commit()
-                st.success(f"✅ Project '{naam}' toegevoegd!")
+                    st.cache_data.clear() 
+                    st.success("✅ Project succesvol opgeslagen!")
                 st.rerun()
+                st.success(f"✅ Project '{naam}' toegevoegd!")
             except Exception as e:
                 st.error(f"❌ Fout: {e}")
 
