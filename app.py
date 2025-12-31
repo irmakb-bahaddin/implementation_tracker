@@ -285,10 +285,11 @@ elif menu == "➕ Nieuw Project":
                             ),
                             {"n": naam, "f": fase, "s": status}
                         )
-                    conn.commit()
-                    st.cache_data.clear() 
-                    st.success("✅ Project succesvol opgeslagen!")
-                st.rerun()
+                    # Eerst commit, dan pas cache en succes
+                    conn.commit()  # Zorgt dat de data ECHT in de database staat
+                    st.cache_data.clear()  # Gooit de oude lijst weg
+                    st.success(f"✅ Project '{naam}' succesvol toegevoegd!")
+                    st.rerun() # Ververs direct naar de nieuwe lijst
                 st.success(f"✅ Project '{naam}' toegevoegd!")
             except Exception as e:
                 st.error(f"❌ Fout: {e}")
