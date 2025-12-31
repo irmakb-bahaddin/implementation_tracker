@@ -8,15 +8,23 @@ import time
 import datetime   # <-- deze erbij
 from io import BytesIO
 
-# ========= DATABASE CONFIG =========
-DB_URL = st.secrets["DB_URL"]
-engine = create_engine(DB_URL, pool_pre_ping=True)
+# ========= DATABASE CONFIG MET CACHING =========
+@st.cache_resource
+def get_engine():
+    # We halen de URL uit de secrets
+    url = st.secrets["DB_URL"]
+    # We maken de engine één keer aan en hergebruiken deze
+    return create_engine(url, pool_pre_ping=True)
 
-# In plaats van de tekst direct hier te typen, halen we het uit secrets.toml
-DB_URL = st.secrets["DB_URL"]
-engine = create_engine(DB_URL, pool_pre_ping=True)
-#DB_URL = f"postgresql+psycopg2://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB}"
-#engine = create_engine(DB_URL, pool_pre_ping=True)
+# Roep de functie aan om de engine beschikbaar te maken voor de rest van de app
+engine = get_engine()
+
+@st.cache_data(ttl=600)  # Onthoudt de data voor 10 minuten
+def get_data_from_db(query):
+    with engine.connect() as conn:
+        return pd.read_sql(text(query), conn)
+
+
 
 # Test connectie
 try:
@@ -34,7 +42,7 @@ cookie_manager = stx.CookieManager()
 def get_all_data():
     """Haalt alle projecten op uit de database."""
     try:
-        df = pd.read_sql("SELECT * FROM projecten", engine)
+        df = get_data_from_db("SELECT * FROM projecten")
         return df
     except Exception as e:
         st.error(f"Fout bij ophalen data: {e}")
@@ -143,10 +151,15 @@ menu = st.sidebar.radio(
 )
 
 if st.sidebar.button("🚪 Uitloggen"):
-    st.session_state.permanent_login = False
-    st.session_state.username = None
+    # Wis alle belangrijke status-variabelen
+    for key in ["permanent_login", "username", "authenticated"]:
+        if key in st.session_state:
+            st.session_state[key] = False if key != "username" else None
+    
+    # Verwijder de cookie
     cookie_manager.delete("auth_token")
-    st.query_params["logout"] = "1"
+    
+    # Forceer een schone herstart
     st.rerun()
 
 # ----- Dashboard -----
